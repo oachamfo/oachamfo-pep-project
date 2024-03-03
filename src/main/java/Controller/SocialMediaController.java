@@ -8,8 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
 
-import java.util.List;
-
 import Model.Account;
 import Model.Message;
 
@@ -170,7 +168,9 @@ private Message deleteMessageHandler(Context context) {
 
 // Handler for updating a message by ID
 private Message updateMessageHandler(Context context) {
-    System.out.println("updatMessageHandler started from Owusu");
+    //Log this for debugging
+    System.out.println("updateMessageHandler started from Owusu");
+    
     // Extract message ID from the path parameters
     int messageId = context.pathParamAsClass("message_id", Integer.class).get();
 
@@ -180,50 +180,44 @@ private Message updateMessageHandler(Context context) {
     // Log existingMessage for debugging
     System.out.println("Existing message: " + existingMessage);
 
-    //if message attempting to update does not exist, HTTP response 400
+    //If message attempting to update does not exist, HTTP response 400
     if (existingMessage == null) {
         // Message not found
         context.status(400);
         return null;
     }
 
-    //if message attempting to update exists, proceed as follows:
+    //If message attempting to update exists, proceed as follows:
     
         // Extract updated message text from the request body
         JsonNode requestBody = context.bodyAsClass(JsonNode.class);
         String newMessageText = requestBody.get("message_text").asText();
-
-        try {
-            System.out.println("Before bodyAsClass");
-            System.out.println("New Message Text:" + newMessageText);
-            System.out.println("After bodyAsClass");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+               
+        //Service method to validate update message text
+        //messageService.validateUpdateMessageText(newMessageText);
         
-        //if newMessageText is not valid
-        if (newMessageText == null || newMessageText.isEmpty() || newMessageText.length() > 255) {
+        //If newMessageText is not valid
+        if (newMessageText == null || newMessageText.isBlank() || newMessageText.length() > 255) {
         System.out.println("Validation failed: " + newMessageText); // Log details for troubleshooting
         context.status(400);
         return null; // Bad Request - Invalid new message text
         }
 
-    //if newMessageText is valid
-    // Call the message service to update the message text by ID
-    Message updatedMessage = messageService.updateMessageText(messageId, newMessageText);
+    //If newMessageText is valid proceed as follows:
+        // Call the message service to update the message text by ID
+        Message updatedMessage = messageService.updateMessageText(messageId, newMessageText);
 
-    if (updatedMessage != null) {
-        // Message found and updated successfully
-       context.status(200).json(updatedMessage);
-} else {
-        // Handle the case where the update is not successful (e.g., validation failed)
-        context.status(400);
+        if (updatedMessage != null) {
+            // Message found and updated successfully
+            context.status(200).json(updatedMessage);
+            } else {
+            // Handle the case where the update is not successful (e.g., validation failed)
+            context.status(400);
         }
     
         return updatedMessage;
 
 }
-
 
     // Handler for retrieving messages by account ID
     private void getMessagesByAccountIdHandler(Context context) {
