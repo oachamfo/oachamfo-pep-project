@@ -85,9 +85,12 @@ public class SocialMediaController {
 
         // Call the account service to perform login
         Account loggedInAccount = accountService.login(account);
-
+        
+        if (loggedInAccount != null){
         // Respond with the logged-in account details
-        context.json(loggedInAccount);
+        context.status(200).json(loggedInAccount);
+        }else context.status(401); //else respond with a 401 status code
+        
     }
 
     // Handler for creating a new message
@@ -175,7 +178,7 @@ private Message updateMessageHandler(Context context) {
     Message existingMessage = messageService.getMessageById(messageId);
   
     // Log existingMessage for debugging
-  System.out.println("Existing message: " + existingMessage);
+    System.out.println("Existing message: " + existingMessage);
 
     //if message attempting to update does not exist, HTTP response 400
     if (existingMessage == null) {
@@ -187,13 +190,11 @@ private Message updateMessageHandler(Context context) {
     //if message attempting to update exists, proceed as follows:
     
         // Extract updated message text from the request body
-         String newMessageText = "";
-        String rawBody = "";
+        JsonNode requestBody = context.bodyAsClass(JsonNode.class);
+        String newMessageText = requestBody.get("message_text").asText();
+
         try {
             System.out.println("Before bodyAsClass");
-            rawBody = context.body();
-            System.out.println("Raw Body: " + rawBody);
-            newMessageText = context.bodyAsClass(String.class);
             System.out.println("New Message Text:" + newMessageText);
             System.out.println("After bodyAsClass");
         } catch (Exception e) {
@@ -209,19 +210,17 @@ private Message updateMessageHandler(Context context) {
 
     //if newMessageText is valid
     // Call the message service to update the message text by ID
-    newMessageText = context.body();
     Message updatedMessage = messageService.updateMessageText(messageId, newMessageText);
 
     if (updatedMessage != null) {
         // Message found and updated successfully
-    //    context.json(updatedMessage);
-    context.status(200).json(updatedMessage);
+       context.status(200).json(updatedMessage);
 } else {
         // Handle the case where the update is not successful (e.g., validation failed)
         context.status(400);
         }
     
-   return updatedMessage;
+        return updatedMessage;
 
 }
 

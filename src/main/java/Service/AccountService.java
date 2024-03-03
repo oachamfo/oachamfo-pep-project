@@ -38,17 +38,17 @@ public class AccountService {
     public int validateAccount(Account account) {
         // Check if the username is not blank
         if (account.getUsername().isBlank()) {
-       return 400;
+       return 401;
         }
 
         // Check if the password is at least 4 characters long
         if (account.getPassword().length() < 4) {
-       return 400;
+       return 401;
         }
 
         // Check if an account with the same username already exists
         if (accountDAO.getAccountByUsername(account.getUsername()) != null) {
-            return 400;
+            return 401;
         }
         return 0;
     }

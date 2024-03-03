@@ -7,6 +7,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import Util.ConnectionUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.SQLException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class MessageDAO {
     private final Connection connection;
@@ -99,7 +102,7 @@ public class MessageDAO {
         return null;
     }
     
-    // DAO method to update the text of a message by ID
+// DAO method to update the text of a message by ID
 public Message updateMessageText(int messageId, String newMessageText) {
     try (PreparedStatement statement = connection.prepareStatement(
             "UPDATE message SET message_text = ? WHERE message_id = ?")) {
@@ -112,17 +115,22 @@ public Message updateMessageText(int messageId, String newMessageText) {
         // Check if the update was successful
         if (affectedRows > 0) {
             // Retrieve the updated message
-            return getMessageById(messageId);
+            Message updatedMessage = getMessageById(messageId);
+
+            // Convert the updated message to JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValueAsString(updatedMessage);
+
+            return updatedMessage;
         }
-    } catch (SQLException e) {
+    } catch (SQLException | JsonProcessingException e) {
         e.printStackTrace();
         // Handle or throw an exception as needed
     }
 
-    // Return null if the update fails
+    // Return null or an appropriate error message if the update fails
     return null;
 }
-
 
     // DAO method to retrieve messages by account ID
     public List<Message> getMessagesByAccountId(int accountId) {
