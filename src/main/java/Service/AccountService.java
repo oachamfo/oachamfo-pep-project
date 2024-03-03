@@ -12,12 +12,14 @@ public class AccountService {
     }
 
     // Service method to create a new account
-    public void createAccount(Account account) {
+    public Account createAccount(Account account) {
         // Validate account information before creating
         validateAccount(account);
-
+        if (validateAccount(account)==0){
         // Call the DAO to persist the new account
-        accountDAO.createAccount(account);
+        return accountDAO.createAccount(account);
+        }
+        return null; //if account is not created
     }
 
     // Service method to perform user login
@@ -33,20 +35,21 @@ public class AccountService {
     }
 
     // Service method to validate account information
-    private void validateAccount(Account account) {
+    public int validateAccount(Account account) {
         // Check if the username is not blank
         if (account.getUsername().isBlank()) {
-            throw new IllegalArgumentException("Username cannot be blank");
+       return 400;
         }
 
         // Check if the password is at least 4 characters long
         if (account.getPassword().length() < 4) {
-            throw new IllegalArgumentException("Password must be at least 4 characters long");
+       return 400;
         }
 
         // Check if an account with the same username already exists
         if (accountDAO.getAccountByUsername(account.getUsername()) != null) {
-            throw new IllegalArgumentException("An account with the same username already exists");
+            return 400;
         }
+        return 0;
     }
 }

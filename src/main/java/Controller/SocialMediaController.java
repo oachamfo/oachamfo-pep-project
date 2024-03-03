@@ -63,15 +63,19 @@ public class SocialMediaController {
     }
 
     // Handler for user registration
-    private void registerHandler(Context context) {
+    private Account registerHandler(Context context) {
         // Extract account information from the request body
         Account account = context.bodyAsClass(Account.class);
 
+        int validationStatus = accountService.validateAccount(account);
+        if (validationStatus == 0){
         // Call the account service to register the user
         accountService.createAccount(account);
 
         // Respond with the registered account details
-        context.json(account);
+        context.status(200).json(account);
+        }else context.status(400);
+        return account;
     }
 
     // Handler for user login

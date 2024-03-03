@@ -16,20 +16,37 @@ public class AccountDAO {
         this.connection = ConnectionUtil.getConnection();
     }
 
-    // DAO method to create a new account
-    public void createAccount(Account account) {
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO account (username, password) VALUES (?, ?)")) {
-            statement.setString(1, account.getUsername());
-            statement.setString(2, account.getPassword());
+     // DAO method to create a new account and return the created account
+    public Account createAccount(Account account) {
+    try (PreparedStatement statement = connection.prepareStatement(
+            "INSERT INTO account (username, password) VALUES (?, ?)", PreparedStatement.RETURN_GENERATED_KEYS)) {
+        statement.setString(1, account.getUsername());
+        statement.setString(2, account.getPassword());
 
-            // Execute the SQL statement
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Handle or throw an exception as needed
+        // Execute the SQL statement
+        int affectedRows = statement.executeUpdate();
+
+        // Check if the account was successfully created
+        if (affectedRows > 0) {
+            // Retrieve the auto-generated keys (if any)
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    // Set the ID of the created account
+                    account.setAccount_id(generatedKeys.getInt(1));
+                } else {
+                    throw new SQLException("Creating account failed, no ID obtained.");
+                }
+            }
+        } else {
+            throw new SQLException("Creating account failed, no rows affected.");
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        // Handle or throw an exception as needed
     }
+    return account;
+}
+
 
     // DAO method to retrieve an account by username
     public Account getAccountByUsername(String username) {
