@@ -5,7 +5,6 @@ import Model.Message;
 
 import java.util.List;
 
-import io.javalin.http.Context;
 
 public class MessageService {
     private MessageDAO messageDAO;
@@ -22,11 +21,12 @@ public class MessageService {
     // Service method to create a new message
     public Message createMessage(Message message) {
         // Validate message information before creating
-        validateMessage(message);
-
+        //A conditional statement is used to utilize the
+        //results of the validation
+        if (validateMessage(message)==0){
         // Call the DAO to persist the new message
         return messageDAO.createMessage(message);
-        
+        }else return null;
         
 }
     // Service method to retrieve all messages
@@ -47,18 +47,18 @@ public class MessageService {
         return messageDAO.deleteMessage(messageId);
     }
 
-// Service method to update the text of a message by ID
-public Message updateMessageText(int messageId, String newMessageText) {
-            Message updatedMessage = messageDAO.updateMessageText(messageId, newMessageText);
+    // Service method to update the text of a message by ID
+    public Message updateMessageText(int messageId, String newMessageText) {
+        Message updatedMessage = messageDAO.updateMessageText(messageId, newMessageText);
 
-            // If the update is successful, return the updated message
-            if (updatedMessage != null) {
-                return updatedMessage;
-            }
+        // If the update is successful, return the updated message
+        if (updatedMessage != null) {
+            return updatedMessage;
+        }
 
-    // Return null if the update is not successful
-    return null;
-}
+        // Return null if the update is not successful
+        return null;
+        }
     
   
     // Service method to retrieve messages by account ID
@@ -67,12 +67,14 @@ public Message updateMessageText(int messageId, String newMessageText) {
         return messageDAO.getMessagesByAccountId(accountId);
     }
 
-//validation methods
+    //Validation methods
 
-// Service method to validate message information and return the appropriate status code
-private int validateMessage(Message message) {
-    // Check if the message text is blank or over 255 characters
-    if (message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() > 255) {
+    //Service method to validate message information for a create message 
+    //and return the appropriate status code.
+    private int validateMessage(Message message) {
+        System.out.println("This is the message text: " + message.getMessage_text());
+        // Check if the message text is blank or over 255 characters
+        if (message.getMessage_text() == null || message.getMessage_text().isBlank() || message.getMessage_text().length() > 255) {
         return 400; // Bad Request - Invalid message text
     }
 
@@ -82,10 +84,10 @@ private int validateMessage(Message message) {
     }
 
     return 0; // Validation successful
-}
+    }
 
-// Service method to validate the new message text for an update
-private int validateUpdateMessageText(String newMessageText) {
+    // Service method to validate the new message text for an update
+    public int validateUpdateMessageText(String newMessageText) {
     // Check if the new message text is blank or over 255 characters
     if (newMessageText == null || newMessageText.trim().isEmpty() || newMessageText.length() > 255) {
         System.out.println("Validation failed: " + newMessageText); // Log details for troubleshooting

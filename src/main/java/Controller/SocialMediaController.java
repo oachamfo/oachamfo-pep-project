@@ -92,23 +92,23 @@ public class SocialMediaController {
     }
 
     // Handler for creating a new message
-private void createMessageHandler(Context context) throws JsonProcessingException {
-    ObjectMapper mapper = new ObjectMapper();
+    private void createMessageHandler(Context context) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
 
-    // Extract message information from the request body
-    Message message = mapper.readValue(context.body(), Message.class);
+        // Extract message information from the request body
+        Message message = mapper.readValue(context.body(), Message.class);
 
-    // Call the message service to create a new message
-    Message addedMessage = messageService.createMessage(message);
+        // Call the message service to create a new message
+        Message addedMessage = messageService.createMessage(message);
 
-    // Respond with the created message details
-    if (addedMessage != null) {
-     context.json(mapper.writeValueAsString(addedMessage));
-    } else {
+        // Respond with the created message details
+        if (addedMessage != null) {
+        context.json(mapper.writeValueAsString(addedMessage));
+        } else {
         context.status(400);
+        }
+
     }
-//return addedMessage;
-}
 
 
     // Handler for retrieving all messages
@@ -136,15 +136,14 @@ private void createMessageHandler(Context context) throws JsonProcessingExceptio
 
     }
 
-  // Handler for deleting a message by ID
-private Message deleteMessageHandler(Context context) {
+    // Handler for deleting a message by ID
+    private Message deleteMessageHandler(Context context) {
     // Extract message ID from the path parameters
     int messageId = context.pathParamAsClass("message_id", Integer.class).get();
 
     // Call the message service to delete the message by ID
     Message deletedMessage = messageService.deleteMessage(messageId);
 
-   
     // Check if the message was deleted or not found
     if (deletedMessage != null) {
         // In the Javalin framework, this is a way to provide an HTTP response to the client with the deleted message details
@@ -155,19 +154,25 @@ private Message deleteMessageHandler(Context context) {
     }
 
     //This returns data to the calling method.
-    //This line is needed because the test case fails without it. Aside from the above HTTP responses, 
-    //to the client, it can be inferred that the test case itself 
+    //This line is needed because the test case fails without it. 
+    //After the above HTTP responses to the client, 
+    //the test case was still failing. So the hypothesis was that this method itself 
+    //should return deletedMessage as a return value although the directions only
+    //asked for a response and not a return. It could be that some method in the test case itself 
     //wants a return value with details about the deletedMessage 
-    //even if the deletion was not successful. In this case, deletedMessage is just
-    //the the name of the variable that stores the details of the message we are attempting to delete
-    //it does not mean an actual deletion took place in the db. if no actual deletion took place, 
-    //deletedMessage will be null because the MessageService delete method 
+    //even if the deletion was not successful. In this case, deletedMessage does not
+    //mean rows were affected in the db. deletedMessage is just
+    //the name of the variable that stores the details 
+    //of the message that was deleted or 
+    //if no actual deletion took place in the db, deletedMessage will contain null 
+    //because the MessageService delete method 
     //will return null from the MessageDAO delete method 
     return deletedMessage;
 }
 
-// Handler for updating a message by ID
-private Message updateMessageHandler(Context context) {
+    // Handler for updating a message by ID
+    private void updateMessageHandler(Context context) {
+    
     //Log this for debugging
     System.out.println("updateMessageHandler started from Owusu");
     
@@ -184,7 +189,6 @@ private Message updateMessageHandler(Context context) {
     if (existingMessage == null) {
         // Message not found
         context.status(400);
-        return null;
     }
 
     //If message attempting to update exists, proceed as follows:
@@ -192,32 +196,22 @@ private Message updateMessageHandler(Context context) {
         // Extract updated message text from the request body
         JsonNode requestBody = context.bodyAsClass(JsonNode.class);
         String newMessageText = requestBody.get("message_text").asText();
-               
-        //Service method to validate update message text
-        //messageService.validateUpdateMessageText(newMessageText);
-        
-        //If newMessageText is not valid
-        if (newMessageText == null || newMessageText.isBlank() || newMessageText.length() > 255) {
-        System.out.println("Validation failed: " + newMessageText); // Log details for troubleshooting
-        context.status(400);
-        return null; // Bad Request - Invalid new message text
-        }
+                         
+        //If newMessageText is valid proceed as follows:
+        if (messageService.validateUpdateMessageText(newMessageText)==0){
+            // Call the message service to update the message text by ID
+            Message updatedMessage = messageService.updateMessageText(messageId, newMessageText);
 
-    //If newMessageText is valid proceed as follows:
-        // Call the message service to update the message text by ID
-        Message updatedMessage = messageService.updateMessageText(messageId, newMessageText);
-
-        if (updatedMessage != null) {
-            // Message found and updated successfully
+            if (updatedMessage != null) {
+            // Message found and updated successfully HTTP response
             context.status(200).json(updatedMessage);
-            } else {
+            }
+        } else {
             // Handle the case where the update is not successful (e.g., validation failed)
             context.status(400);
         }
     
-        return updatedMessage;
-
-}
+    }
 
     // Handler for retrieving messages by account ID
     private void getMessagesByAccountIdHandler(Context context) {

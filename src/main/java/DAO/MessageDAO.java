@@ -56,8 +56,8 @@ public class MessageDAO {
         }
         return null;
     }
+ 
     
-       
     // DAO method to retrieve a message by ID
     public Message getMessageById(int messageId) {
         try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM message WHERE message_id = ?")) {
@@ -102,8 +102,8 @@ public class MessageDAO {
         return null;
     }
     
-// DAO method to update the text of a message by ID
-public Message updateMessageText(int messageId, String newMessageText) {
+    // DAO method to update the text of a message by ID
+    public Message updateMessageText(int messageId, String newMessageText) {
     try (PreparedStatement statement = connection.prepareStatement(
             "UPDATE message SET message_text = ? WHERE message_id = ?")) {
         statement.setString(1, newMessageText);
@@ -130,7 +130,7 @@ public Message updateMessageText(int messageId, String newMessageText) {
 
     // Return null or an appropriate error message if the update fails
     return null;
-}
+    }
 
     // DAO method to retrieve messages by account ID
     public List<Message> getMessagesByAccountId(int accountId) {
@@ -191,7 +191,7 @@ public Message updateMessageText(int messageId, String newMessageText) {
     }
 
     // DAO method to retrieve all messages
-public List<Message> getAllMessages() {
+    public List<Message> getAllMessages() {
     List<Message> messages = new ArrayList<>();
 
     try (Statement statement = connection.createStatement()) {
@@ -208,6 +208,6 @@ public List<Message> getAllMessages() {
     }
 
     return messages;
-}
+    }
 
 }
