@@ -146,28 +146,14 @@ public class SocialMediaController {
 
     // Check if the message was deleted or not found
     if (deletedMessage != null) {
-        // In the Javalin framework, this is a way to provide an HTTP response to the client with the deleted message details
-        context.json(deletedMessage);
+        context.json(deletedMessage); // Provide HTTP response with deleted message details
     } else {
-        // In the Javalin framework, this is a way to provide an HTTP response to the client with an empty body if the message was not found
-        context.status(200).result("");
+        context.status(200).result(""); // Provide HTTP response with empty body if message not found
     }
 
-    //This returns data to the calling method.
-    //This line is needed because the test case fails without it. 
-    //After the above HTTP responses to the client, 
-    //the test case was still failing. So the hypothesis was that this method itself 
-    //should return deletedMessage as a return value although the directions only
-    //asked for a response and not a return. It could be that some method in the test case itself 
-    //wants a return value with details about the deletedMessage 
-    //even if the deletion was not successful. In this case, deletedMessage does not
-    //mean rows were affected in the db. deletedMessage is just
-    //the name of the variable that stores the details 
-    //of the message that was deleted or 
-    //if no actual deletion took place in the db, deletedMessage will contain null 
-    //because the MessageService delete method 
-    //will return null from the MessageDAO delete method 
-    return deletedMessage;
+     // Return deletedMessage as a return value (even if null) for potential use in the calling method or the test case
+     // The test case fails without the return of deletedMessage
+     return deletedMessage;
 }
 
     // Handler for updating a message by ID
