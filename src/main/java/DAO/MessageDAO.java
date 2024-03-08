@@ -7,9 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import Util.ConnectionUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.SQLException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class MessageDAO {
     private final Connection connection;
@@ -118,12 +116,12 @@ public class MessageDAO {
             Message updatedMessage = getMessageById(messageId);
 
             // Convert the updated message to JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.writeValueAsString(updatedMessage);
+            //ObjectMapper objectMapper = new ObjectMapper();
+            //objectMapper.writeValueAsString(updatedMessage);
 
             return updatedMessage;
         }
-    } catch (SQLException | JsonProcessingException e) {
+    } catch (SQLException e) {
         e.printStackTrace();
         // Handle or throw an exception as needed
     }

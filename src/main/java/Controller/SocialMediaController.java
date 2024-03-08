@@ -3,7 +3,6 @@ package Controller;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -93,17 +92,16 @@ public class SocialMediaController {
 
     // Handler for creating a new message
     private void createMessageHandler(Context context) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
 
         // Extract message information from the request body
-        Message message = mapper.readValue(context.body(), Message.class);
-
+        Message message = context.bodyAsClass(Message.class); 
+        
         // Call the message service to create a new message
         Message addedMessage = messageService.createMessage(message);
 
         // Respond with the created message details
         if (addedMessage != null) {
-        context.json(mapper.writeValueAsString(addedMessage));
+        context.status(200).json(addedMessage);
         } else {
         context.status(400);
         }
